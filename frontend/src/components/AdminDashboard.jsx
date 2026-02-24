@@ -9,7 +9,7 @@ const AdminDashboard = ({ onLogout }) => {
     const [pagination, setPagination] = useState({ page: 1, pages: 1, total: 0 });
     const [isDeleting, setIsDeleting] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
-    const [limit, setLimit] = useState(10);
+    const [limit, setLimit] = useState(5);
 
     useEffect(() => {
         fetchUsers(pagination.page, limit, searchTerm);
@@ -28,10 +28,16 @@ const AdminDashboard = ({ onLogout }) => {
         return () => clearTimeout(delayDebounceFn);
     }, [searchTerm]);
 
-    const fetchUsers = async (page = 1, currentLimit = 5, search = '') => {
+    const [error, setError] = useState(null);
+
+    const fetchUsers = async (page = 1, currentLimit = 10, search = '') => {
         setLoading(true);
+        setError(null);
+        const url = `${API_BASE_URL}/all?page=${page}&limit=${currentLimit}&search=${search}`;
+        console.log('Fetching from:', url);
         try {
-            const response = await fetch(`${API_BASE_URL}/all?page=${page}&limit=${currentLimit}&search=${search}`);
+            const response = await fetch(url);
+            if (!response.ok) throw new Error('Failed to fetch data');
             const data = await response.json();
             if (data.success) {
                 setUsers(data.data);
@@ -39,6 +45,7 @@ const AdminDashboard = ({ onLogout }) => {
             }
         } catch (error) {
             console.error('Error fetching users:', error);
+            setError(error.message);
         } finally {
             setLoading(false);
         }
@@ -147,6 +154,20 @@ const AdminDashboard = ({ onLogout }) => {
                                             <div className="flex flex-col items-center gap-2">
                                                 <div className="w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
                                                 <p className="font-medium">Loading data...</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ) : error ? (
+                                    <tr>
+                                        <td colSpan="5" className="px-6 py-12 text-center text-red-500">
+                                            <div className="flex flex-col items-center gap-2">
+                                                <p className="font-bold">Error: {error}</p>
+                                                <button
+                                                    onClick={() => fetchUsers(pagination.page, limit, searchTerm)}
+                                                    className="text-xs bg-red-100 px-2 py-1 rounded hover:bg-red-200 transition-colors"
+                                                >
+                                                    Retry
+                                                </button>
                                             </div>
                                         </td>
                                     </tr>

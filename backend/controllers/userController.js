@@ -49,4 +49,55 @@ const registerUser = async (req, res) => {
     }
 };
 
-module.exports = { registerUser };
+const getAllUsers = async (req, res) => {
+    console.log('--- getAllUsers called ---');
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const search = req.query.search || '';
+        const skip = (page - 1) * limit;
+
+        let query = {};
+        if (search) {
+            query = {
+                $or: [
+                    { fullName: { $regex: search, $options: 'i' } },
+                    { email: { $regex: search, $options: 'i' } },
+                    { phone: { $regex: search, $options: 'i' } }
+                ]
+            };
+        }
+
+        const total = await User.countDocuments(query);
+        const users = await User.find(query)
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit);
+
+        res.status(200).json({
+            success: true,
+            data: users,
+            pagination: {
+                total,
+                page,
+                pages: Math.ceil(total / limit)
+            }
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Server error', error: error.message });
+    }
+};
+
+const deleteUser = async (req, res) => {
+    try {
+        const user = await User.findByIdAndDelete(req.params.id);
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+        res.status(200).json({ success: true, message: 'User deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Server error', error: error.message });
+    }
+};
+
+module.exports = { registerUser, getAllUsers, deleteUser };
