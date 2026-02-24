@@ -378,7 +378,7 @@ const RegistrationForm = () => {
                             )}
                         </button>
                     </form>
-                    
+
                 </div>
 
                 {/* Right Section: Sticky QR Code (Desktop only) */}
