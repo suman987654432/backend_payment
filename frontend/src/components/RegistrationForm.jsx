@@ -105,11 +105,7 @@ const RegistrationForm = () => {
             });
 
             try {
-<<<<<<< HEAD
                 const response = await fetch(`${API_BASE_URL}/register`, {
-=======
-                const response = await fetch('https://payment-form-pn3n.onrender.com/api/users/register', {
->>>>>>> 85cdc4e8163a442ebeed1fd76481a9be6b6c92bf
                     method: 'POST',
                     body: data,
                 });
@@ -382,11 +378,7 @@ const RegistrationForm = () => {
                             )}
                         </button>
                     </form>
-                    <div className="mt-8 pt-6 border-t border-slate-100 text-center">
-                        <Link to="/admin-login" className="text-xs text-slate-400 hover:text-slate-600 transition-colors uppercase font-bold tracking-widest">
-                            Admin Login
-                        </Link>
-                    </div>
+                    
                 </div>
 
                 {/* Right Section: Sticky QR Code (Desktop only) */}
